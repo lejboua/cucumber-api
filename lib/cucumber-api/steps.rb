@@ -36,6 +36,20 @@ When(/^I set form request body to:$/) do |params|
   end
 end
 
+When(/^I set form request body allowing params with the same key to:$/) do |params|
+  @body = ""
+
+  result = params.raw.each do |key, value|
+    p_value = value
+    @grabbed.each { |k, v| p_value = v if value == %/{#{k}}/ } unless @grabbed.nil?
+    p_value = File.new %-#{Dir.pwd}/#{p_value.sub 'file://', ''}- if %/#{p_value}/.start_with? "file://"
+    @body += "#{key}=#{p_value}&"
+  end
+
+  @body.chomp("&")
+  result
+end
+
 When(/^I set request body from "(.*?).(yml|json)"$/) do |filename, extension|
   path = %-#{Dir.pwd}/#{filename}.#{extension}-
   if File.file? path
